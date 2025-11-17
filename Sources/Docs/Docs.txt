@@ -1,0 +1,2 @@
+Reset( CMD: 0x5 ( BSL_CMD_NORMAL_RESET ), Timeout: 1000 )
+PowerOff(  CMD: 0x17 ( BSL_CMD_POWER_OFF ), Timeout: 1000 ): Success.
