@@ -25,9 +25,9 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
 
             MyDisplay.RichLogs("Send connect	     : ", Color.Black, true, false);
             MyDisplay.RichLogs("Connect command sent", Color.Black, true, true);
-            if (await uni.send_checkbaud(cancelToken))
+            if (await Uni.send_checkbaud(cancelToken))
             {
-                if (await uni.send_connect(cancelToken))
+                if (await Uni.send_connect(cancelToken))
                 {
                     #region send_file C++ FDL1
 
@@ -35,7 +35,7 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
                     {
                         MyProgress.totalchecked += 1;
                         MyProgress.Delay(1);
-                        await uni.send_start_fdl(fdl1_addr, fdl1_len, cancelToken);
+                        await Uni.send_start_fdl(fdl1_addr, fdl1_len, cancelToken);
 
                         MyDisplay.RichLogs("Sending FDL1         : ", Color.Black, true, false);
 
@@ -46,20 +46,20 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
 
                             MyProgress.ProcessBar1(fdl1_writen, fdl1.Length);
 
-                            if (fdl1_len > uni.MIDST_SIZE)
+                            if (fdl1_len > Uni.MIDST_SIZE)
                             {
-                                await uni.send_midst(
-                                    uni.TakeByte(fdl1, (ulong)fdl1_writen, (ulong)uni.MIDST_SIZE),
+                                await Uni.send_midst(
+                                    Uni.TakeByte(fdl1, (ulong)fdl1_writen, (ulong)Uni.MIDST_SIZE),
                                     cancelToken
                                 );
 
-                                fdl1_len -= uni.MIDST_SIZE;
-                                fdl1_writen += uni.MIDST_SIZE;
+                                fdl1_len -= Uni.MIDST_SIZE;
+                                fdl1_writen += Uni.MIDST_SIZE;
                             }
                             else
                             {
-                                await uni.send_midst(
-                                    uni.TakeByte(fdl1, (ulong)fdl1_writen, (ulong)fdl1_len),
+                                await Uni.send_midst(
+                                    Uni.TakeByte(fdl1, (ulong)fdl1_writen, (ulong)fdl1_len),
                                     cancelToken
                                 );
 
@@ -67,10 +67,10 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
                             }
                         }
 
-                        await uni.send_end(cancelToken);
-                        await uni.send_exec(cancelToken);
+                        await Uni.send_end(cancelToken);
+                        await Uni.send_exec(cancelToken);
                         MyDisplay.RichLogs("Done", Color.Purple, true, true);
-                        await uni.send_connect(cancelToken);
+                        await Uni.send_connect(cancelToken);
                     }
 
                     #endregion
@@ -79,11 +79,11 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
 
                     if (fdl2_len > 0)
                     {
-                        await uni.send_connect(cancelToken);
+                        await Uni.send_connect(cancelToken);
 
                         Checksum.set_chksum_type("add");
 
-                        await uni.send_start_fdl(fdl2_addr, fdl2_len, cancelToken);
+                        await Uni.send_start_fdl(fdl2_addr, fdl2_len, cancelToken);
 
                         MyDisplay.RichLogs("Sending FDL2         : ", Color.Black, true, false);
 
@@ -94,29 +94,29 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
 
                             MyProgress.ProcessBar1(fdl2_writen, fdl2.Length);
 
-                            if (fdl2_len > uni.MIDST_SIZE)
+                            if (fdl2_len > Uni.MIDST_SIZE)
                             {
-                                await uni.send_midst(
-                                    uni.TakeByte(fdl2, (ulong)fdl2_writen, (ulong)uni.MIDST_SIZE),
+                                await Uni.send_midst(
+                                    Uni.TakeByte(fdl2, (ulong)fdl2_writen, (ulong)Uni.MIDST_SIZE),
                                     cancelToken
                                 );
-                                fdl2_len -= uni.MIDST_SIZE;
-                                fdl2_writen += uni.MIDST_SIZE;
+                                fdl2_len -= Uni.MIDST_SIZE;
+                                fdl2_writen += Uni.MIDST_SIZE;
                             }
                             else
                             {
-                                await uni.send_midst(
-                                    uni.TakeByte(fdl2, (ulong)fdl2_writen, (ulong)fdl2_len),
+                                await Uni.send_midst(
+                                    Uni.TakeByte(fdl2, (ulong)fdl2_writen, (ulong)fdl2_len),
                                     cancelToken
                                 );
                                 fdl2_len = 0;
                             }
                         }
 
-                        await uni.send_end(cancelToken);
-                        await uni.send_exec(cancelToken);
+                        await Uni.send_end(cancelToken);
+                        await Uni.send_exec(cancelToken);
 
-                        await uni.send_enable_flash(cancelToken);
+                        await Uni.send_enable_flash(cancelToken);
                         MyDisplay.RichLogs("Done", Color.Purple, true, true);
                         MyProgress.totaldo += 1;
 

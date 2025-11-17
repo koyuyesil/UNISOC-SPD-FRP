@@ -40,7 +40,7 @@ namespace iReverse_UniSPD_FRP.My
             int bufSize = spL.BytesToRead;
             byte[] buf = await Main.myserial.ReadAsync(Main.cts.Token, bufSize);
 
-            if (!await uni.read_ack(buf, Main.cts.Token))
+            if (!await Uni.read_ack(buf, Main.cts.Token))
             {
                 try
                 {
@@ -89,7 +89,7 @@ namespace iReverse_UniSPD_FRP.My
                 var response = new byte[total];
                 Array.Copy(buffer, 0, response, 0, total);
 
-                if (uni.logs_on)
+                if (Uni.logs_on)
                     Console.WriteLine(
                         "Read  <- ["
                             + response.Length
@@ -151,7 +151,7 @@ namespace iReverse_UniSPD_FRP.My
                     throw new TimeoutException();
                 }
 
-                if (uni.logs_on)
+                if (Uni.logs_on)
                     Console.WriteLine(
                         "Write -> ["
                             + length
