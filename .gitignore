@@ -1,0 +1,73 @@
+###############################
+# Visual Studio Genel
+###############################
+.vs/
+*.user
+*.suo
+*.cache
+*.ilk
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.idb
+
+###############################
+# Build klasörleri
+###############################
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# Eğer alt klasörde bin/obj varsa:
+**/bin/
+**/obj/
+
+###############################
+# Visual Basic / VB.NET
+###############################
+*.vbproj.user
+*.vbproj.*.user
+*.vbproj.vspscc
+*.vbx
+
+###############################
+# Paketler – NuGet
+###############################
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+
+###############################
+# Auto-generated
+###############################
+Generated\ Files/
+*.g.*
+*.g.cs
+*.g.vb
+*.designer.vb
+*.designer.cs
+
+###############################
+# Çeşitli
+###############################
+*.log
+*.tmp
+*.bak
+*.old
+
+# Publish çıktıları
+publish/
+**/publish/
+
+# Rider / Resharper
+.idea/
+*.DotSettings.user
+
+# Windows
+Thumbs.db
+desktop.ini
