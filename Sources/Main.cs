@@ -1,11 +1,11 @@
-﻿using System;
+﻿using iReverse_UniSPD_FRP.My;
+using iReverse_UniSPD_FRP.UniSPD;
+using iReverse_UniSPD_FRP.UniSPD.Method;
+using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-using iReverse_UniSPD_FRP.My;
-using iReverse_UniSPD_FRP.UniSPD;
-using iReverse_UniSPD_FRP.UniSPD.Method;
 
 namespace iReverse_UniSPD_FRP
 {
@@ -21,7 +21,7 @@ namespace iReverse_UniSPD_FRP
             InitializeComponent();
             SharedUI = this;
             MyUSBFastConnect.getcomInfo();
-            MyListSPDDevice.CreateListDevice();
+            UniSPDDevice.CreateListDevice();
         }
 
         private void comboBoxTimeout_SelectedIndexChanged(object sender, EventArgs e)
@@ -42,17 +42,18 @@ namespace iReverse_UniSPD_FRP
                 Match match1 = Regex.Match(ComboPort.Text, @"\((COM\d+)\)");
                 if (match1.Success)
                 {
-                    uni.PortCom = match1.Groups[1].Value.Replace("COM", "");
+                    Uni.PortCom = match1.Groups[1].Value.Replace("COM", "");
                 }
             }
             else
             {
-                uni.PortCom = "";
+                Uni.PortCom = "";
             }
         }
 
         private void ListBoxViewSearch_TextChanged(object sender, EventArgs e)
         {
+            //TODO DEĞİŞTİR
             if (ListBoxViewSearch.Text.Length > 0)
             {
                 int i = 0;
@@ -73,32 +74,28 @@ namespace iReverse_UniSPD_FRP
 
         private void ListBoxview_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (object item in ListBoxview.SelectedItems)
+            //ÇÖP
+
+            if (!isUniSPDRunning)
             {
-                if (!isUniSPDRunning)
-                {
-                    MyListSPDDevice.Info list = item as MyListSPDDevice.Info;
-                    MyListSPDDevice.DevicesName = list.Devices;
-                    MyListSPDDevice.ModelName = list.Models;
-                    MyListSPDDevice.Platform = list.Platform;
+                UniSPDDevice.Info info = ListBoxview.SelectedItem as UniSPDDevice.Info;
+                UniSPDDevice.DevicesName = info.Devices;
+                UniSPDDevice.ModelName = info.Models;
+                UniSPDDevice.Platform = info.Platform;
+                UniSPDDevice.Brand = info.Devices.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
 
-                    string[] Brand = list.Devices.Split(
-                        " ".ToCharArray(),
-                        StringSplitOptions.RemoveEmptyEntries
-                    );
-
-                    MyListSPDDevice.Brand = Brand[0];
-
-                    MyDisplay.RtbClear();
-                    MyDisplay.RichLogs(
-                        "Selected : " + list.Devices + " " + list.Models + " " + list.Platform,
-                        Color.Black,
-                        true,
-                        true
-                    );
-                    MethodOneClick.SPDOneClickExecModel();
-                    break;
-                }
+                MyDisplay.RtbClear();
+                MyDisplay.RichLogs("Selected : ", Color.Black,
+                    true,
+                    false
+                );
+                MyDisplay.RichLogs(
+                    "" + UniSPDDevice.DevicesName + " " + UniSPDDevice.ModelName + " " + UniSPDDevice.Platform,
+                    Color.Purple,
+                    true,
+                    true
+                );
+                MethodOneClick.SPDOneClickExecModel();
             }
         }
 
@@ -115,6 +112,7 @@ namespace iReverse_UniSPD_FRP
             {
                 MyDisplay.RichLogs("Task Stopped", Color.Black, true, true);
                 cts = new CancellationTokenSource();
+                My.MyProgress.ProcessBar1(0);
                 isUniSPDRunning = false;
             }
         }

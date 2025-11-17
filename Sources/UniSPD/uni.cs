@@ -10,7 +10,7 @@ using iReverse_UniSPD_FRP.My;
 
 namespace iReverse_UniSPD_FRP.UniSPD
 {
-    internal static class uni
+    internal static class Uni
     {
         public static int MIDST_SIZE = 528;
         public static string PortCom = "";
@@ -35,17 +35,17 @@ namespace iReverse_UniSPD_FRP.UniSPD
         private static byte[] translate(byte[] data)
         {
             List<byte> transdata = new List<byte>();
-            transdata.Add((byte)Uni_CMD.HDLC_HEADER);
+            transdata.Add((byte)UniCMD.HDLC_HEADER);
             foreach (byte b in data)
             {
-                if (b == Uni_CMD.HDLC_HEADER)
+                if (b == UniCMD.HDLC_HEADER)
                 {
-                    transdata.Add((byte)Uni_CMD.HDLC_ESCAPE);
+                    transdata.Add((byte)UniCMD.HDLC_ESCAPE);
                     transdata.Add(0x5E);
                 }
-                else if (b == Uni_CMD.HDLC_ESCAPE)
+                else if (b == UniCMD.HDLC_ESCAPE)
                 {
-                    transdata.Add((byte)Uni_CMD.HDLC_ESCAPE);
+                    transdata.Add((byte)UniCMD.HDLC_ESCAPE);
                     transdata.Add(0x5D);
                 }
                 else
@@ -53,7 +53,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                     transdata.Add(b);
                 }
             }
-            transdata.Add((byte)Uni_CMD.HDLC_HEADER);
+            transdata.Add((byte)UniCMD.HDLC_HEADER);
             return transdata.ToArray();
         }
 
@@ -62,7 +62,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
             if (data.Length > 0)
             {
                 List<byte> lst = new List<byte>(data);
-                if (lst[0] != Uni_CMD.HDLC_HEADER)
+                if (lst[0] != UniCMD.HDLC_HEADER)
                 {
                     return null;
                 }
@@ -72,14 +72,14 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 List<byte> detransdata = new List<byte>();
                 while (i <= (lst.Count - 1))
                 {
-                    if (lst[i] == Uni_CMD.HDLC_ESCAPE && lst[i + 1] == 0x5E)
+                    if (lst[i] == UniCMD.HDLC_ESCAPE && lst[i + 1] == 0x5E)
                     {
-                        detransdata.Add((byte)Uni_CMD.HDLC_HEADER);
+                        detransdata.Add((byte)UniCMD.HDLC_HEADER);
                         i += 2;
                     }
-                    else if (lst[i] == Uni_CMD.HDLC_ESCAPE && lst[i + 1] == 0x5D)
+                    else if (lst[i] == UniCMD.HDLC_ESCAPE && lst[i + 1] == 0x5D)
                     {
-                        detransdata.Add((byte)Uni_CMD.HDLC_ESCAPE);
+                        detransdata.Add((byte)UniCMD.HDLC_ESCAPE);
                         i += 2;
                     }
                     else
@@ -137,14 +137,14 @@ namespace iReverse_UniSPD_FRP.UniSPD
             List<byte> translate = new List<byte>();
             while (h <= (lst.Count - 1))
             {
-                if (lst[h] == Uni_CMD.HDLC_ESCAPE && lst[h + 1] == 0x5E)
+                if (lst[h] == UniCMD.HDLC_ESCAPE && lst[h + 1] == 0x5E)
                 {
-                    translate.Add((byte)Uni_CMD.HDLC_HEADER);
+                    translate.Add((byte)UniCMD.HDLC_HEADER);
                     h += 2;
                 }
-                else if (lst[h] == Uni_CMD.HDLC_ESCAPE && lst[h + 1] == 0x5D)
+                else if (lst[h] == UniCMD.HDLC_ESCAPE && lst[h + 1] == 0x5D)
                 {
-                    translate.Add((byte)Uni_CMD.HDLC_ESCAPE);
+                    translate.Add((byte)UniCMD.HDLC_ESCAPE);
                     h += 2;
                 }
                 else
@@ -215,9 +215,9 @@ namespace iReverse_UniSPD_FRP.UniSPD
 
         public static byte[] generate_packet(int command, byte[] data = null)
         {
-            if (command == (int)Uni_CMD.BSL.CMD_CHECK_BAUD)
+            if (command == (int)UniCMD.BSL.CMD_CHECK_BAUD)
             {
-                return new byte[] { (byte)Uni_CMD.BSL.CMD_CHECK_BAUD };
+                return new byte[] { (byte)UniCMD.BSL.CMD_CHECK_BAUD };
             }
 
             List<byte> packet = new List<byte>();
@@ -297,20 +297,20 @@ namespace iReverse_UniSPD_FRP.UniSPD
 
         public static async Task<bool> send_checkbaud(CancellationToken cancelToken)
         {
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_CHECK_BAUD), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_CHECK_BAUD), 0, cancelToken);
             return isACK;
         }
 
         public static async Task<bool> send_connect(CancellationToken cancelToken)
         {
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_CONNECT), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_CONNECT), 0, cancelToken);
             return isACK;
         }
 
         public static async Task<bool> send_enable_flash(CancellationToken cancelToken)
         {
             await send_data(
-                generate_packet((int)Uni_CMD.BSL.CMD_ENABLE_WRITE_FLASH),
+                generate_packet((int)UniCMD.BSL.CMD_ENABLE_WRITE_FLASH),
                 0,
                 cancelToken
             );
@@ -320,7 +320,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
         public static async Task<bool> send_disable_transcode(CancellationToken cancelToken)
         {
             await send_data(
-                generate_packet((int)Uni_CMD.BSL.CMD_DISABLE_TRANSCODE),
+                generate_packet((int)UniCMD.BSL.CMD_DISABLE_TRANSCODE),
                 0,
                 cancelToken
             );
@@ -335,7 +335,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
         {
             await send_data(
                 generate_packet(
-                    (int)Uni_CMD.BSL.CMD_START_DATA,
+                    (int)UniCMD.BSL.CMD_START_DATA,
                     parse_reverse(
                         BitConverter
                             .GetBytes(total_size)
@@ -352,19 +352,19 @@ namespace iReverse_UniSPD_FRP.UniSPD
         public static async Task send_midst(byte[] data, CancellationToken cancelToken)
         {
             isPartitionOperation = true;
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_MIDST_DATA, data));
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_MIDST_DATA, data));
         }
 
         public static async Task<bool> send_end(CancellationToken cancelToken)
         {
             isPartitionOperation = false;
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_END_DATA), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_END_DATA), 0, cancelToken);
             return isACK;
         }
 
         public static async Task<bool> send_exec(CancellationToken cancelToken)
         {
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_EXEC_DATA), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_EXEC_DATA), 0, cancelToken);
             return isACK;
         }
 
@@ -380,7 +380,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
             byte[] tb = TakeByte(a, 0, 4);
             byte[] tl = TakeByte(b, 0, 4);
             byte[] Tosend = generate_packet(
-                (int)Uni_CMD.BSL.CMD_READ_MIDST,
+                (int)UniCMD.BSL.CMD_READ_MIDST,
                 tb.Concat(tl).ToArray()
             );
             await send_data(Tosend, 0, cancelToken);
@@ -390,7 +390,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
         public static async Task<bool> send_read_midst(byte[] data, CancellationToken cancelToken)
         {
             isPartitionOperation = true;
-            byte[] Tosend = generate_packet((int)Uni_CMD.BSL.CMD_READ_MIDST, data);
+            byte[] Tosend = generate_packet((int)UniCMD.BSL.CMD_READ_MIDST, data);
             await send_data(Tosend, 0, cancelToken);
             return isACK;
         }
@@ -398,7 +398,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
         public static async Task<bool> send_read_end(CancellationToken cancelToken)
         {
             isPartitionOperation = false;
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_READ_END), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_READ_END), 0, cancelToken);
             return isACK;
         }
 
@@ -461,7 +461,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
             {
                 Tosend = generate_packet(cmd, resultBytes);
             }
-
+            //kalıyor
             await send_data(Tosend, 0, cancelToken);
 
             return isACK;
@@ -542,10 +542,10 @@ namespace iReverse_UniSPD_FRP.UniSPD
             if (name != "userdata")
             {
                 string a = await send_check_partition_size("userdata", cancelToken);
-                ulong userdatasize = uni.StrToSize(await send_check_partition_size(a, cancelToken));
+                ulong userdatasize = Uni.StrToSize(a);
 
                 string b = await send_check_partition_size(name, cancelToken);
-                ulong partsize = uni.StrToSize(b);
+                ulong partsize = Uni.StrToSize(b);
 
                 if (userdatasize > partsize)
                 {
@@ -553,6 +553,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 }
                 else
                 {
+                    MyDisplay.RichLogs("No User Data.", Color.Crimson, true, true);
                     return "0";
                 }
             }
@@ -582,7 +583,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 name,
                 "256G",
                 true,
-                (int)Uni_CMD.BSL.CMD_READ_START,
+                (int)UniCMD.BSL.CMD_READ_START,
                 cancelToken
             );
 
@@ -620,7 +621,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
             {
                 do
                 {
-                    if (uni.StrToSize(Count.ToString() + "M") > offset)
+                    if (Uni.StrToSize(Count.ToString() + "M") > offset)
                     {
                         size = Count - 1 + "M";
                         break;
@@ -639,9 +640,8 @@ namespace iReverse_UniSPD_FRP.UniSPD
         public static async Task send_reset(CancellationToken cancelToken)
         {
             MyDisplay.lbl_resp("Rebooting...");
-            MyDisplay.RichLogs(" ", Color.Black, true, true);
             MyDisplay.RichLogs("Reboot               : ", Color.Black, true, false);
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_NORMAL_RESET), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_NORMAL_RESET), 0, cancelToken);
             MyDisplay.RichLogs("OK", Color.Lime, true, true);
             Main.SharedUI.CkFDLLoaded.Invoke(
                 new Action(() =>
@@ -650,20 +650,13 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 })
             );
             Main.myserial?.Dispose();
-            MyDisplay.RichLogs(" ", Color.Black, true, true);
-            MyDisplay.RichLogs(
-                "__________________________________________________________________",
-                Color.Black,
-                true,
-                true
-            );
             MyDisplay.RichLogs("Task completed! ...", Color.Black, true, true);
             MyDisplay.lbl_resp("");
         }
 
         public static async Task send_keepcharge(CancellationToken cancelToken)
         {
-            await send_data(generate_packet((int)Uni_CMD.BSL.CMD_KEEP_CHARGE), 0, cancelToken);
+            await send_data(generate_packet((int)UniCMD.BSL.CMD_KEEP_CHARGE), 0, cancelToken);
         }
 
         public static async Task<bool> read_ack(byte[] buff, CancellationToken cancelToken)
@@ -678,7 +671,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 byte[] Data = tuple.Item2;
                 bool chksumMatch = tuple.Item3;
 
-                if (response == (int)Uni_CMD.BSL.REP_VER)
+                if (response == (int)UniCMD.BSL.REP_VER)
                 {
                     string version;
 
@@ -692,15 +685,17 @@ namespace iReverse_UniSPD_FRP.UniSPD
                         MyDisplay.lbl_resp(version);
                     }
                 }
-                if (response == (int)Uni_CMD.BSL.REP_ACK)
+                if (response == (int)UniCMD.BSL.REP_ACK)
                 {
                     if (!logs_on)
                     {
                         Console.WriteLine("Response : ACK Received");
                         MyDisplay.lbl_resp("ACK Received");
+                        MyDisplay.RichLogs("ACK Received	     : ", Color.Black, true, false);
+                        MyDisplay.RichLogs("OK", Color.DarkBlue, true, true);
                     }
                 }
-                if (response == (int)Uni_CMD.BSL.REP_READ_FLASH)
+                if (response == (int)UniCMD.BSL.REP_READ_FLASH)
                 {
                     if (chksumMatch)
                     {
@@ -724,7 +719,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 {
                     isReadFlash = false;
                 }
-                if (response == (int)Uni_CMD.BSL.REP_VERIFY_ERROR)
+                if (response == (int)UniCMD.BSL.REP_VERIFY_ERROR)
                 {
                     MyDisplay.RichLogs(
                         "Response" + "\t" + ": Verify Error",
@@ -737,7 +732,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                     isACK = false;
                     return false;
                 }
-                if (response == (int)Uni_CMD.BSL.REP_INCOMPATIBLE_PARTITION)
+                if (response == (int)UniCMD.BSL.REP_INCOMPATIBLE_PARTITION)
                 {
                     await send_enable_flash(cancelToken);
 
@@ -745,7 +740,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                     isACK = true;
                     return true;
                 }
-                if (response == (int)Uni_CMD.BSL.REP_DOWN_SIZE_ERROR)
+                if (response == (int)UniCMD.BSL.REP_DOWN_SIZE_ERROR)
                 {
                     if (!isPartitionOperation)
                     {

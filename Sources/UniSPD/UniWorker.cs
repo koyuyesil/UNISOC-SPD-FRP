@@ -7,10 +7,11 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using iReverse_UniSPD_FRP.My;
 using iReverse_UniSPD_FRP.UniSPD.Method;
+using System.Diagnostics.Eventing.Reader;
 
 namespace iReverse_UniSPD_FRP.UniSPD
 {
-    internal static class uni_worker
+    internal static class UniWorker
     {
         public static string WorkerMethod = null;
 
@@ -19,27 +20,27 @@ namespace iReverse_UniSPD_FRP.UniSPD
             if (!String.IsNullOrEmpty(WorkerMethod))
             {
                 cancelToken.ThrowIfCancellationRequested();
-                MyDisplay.RichLogs("Searching USB Port   : ", Color.Black, true, false);
+                MyDisplay.RichLogs("Searching USB Port  : ", Color.Black, true, false);
                 while (true)
                 {
                     cancelToken.ThrowIfCancellationRequested();
 
-                    if (!String.IsNullOrEmpty(uni.PortCom))
+                    if (!String.IsNullOrEmpty(Uni.PortCom))
                     {
                         break;
                     }
                 }
 
                 MyDisplay.RichLogs(
-                    "Found At COM" + uni.PortCom + Environment.NewLine,
+                    "Found At COM" + Uni.PortCom + Environment.NewLine,
                     Color.Black,
                     true,
                     true
                 );
 
-                if (!String.IsNullOrEmpty(uni.PortCom))
+                if (!String.IsNullOrEmpty(Uni.PortCom))
                 {
-                    SerialPort serialPort = new SerialPort("COM" + uni.PortCom, 115200);
+                    SerialPort serialPort = new SerialPort("COM" + Uni.PortCom, 115200);
                     serialPort.ReadTimeout = 120000;
                     serialPort.WriteTimeout = 120000;
                     Main.myserial = new MySerialDevice(serialPort);
@@ -52,7 +53,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                     {
                         await MethodDownload.ConnectDownload(cancelToken);
                         await Task.Delay(TimeSpan.FromSeconds(2.0));
-                        await uni.send_keepcharge(cancelToken);
+                        await Uni.send_keepcharge(cancelToken);
                     }
 
                     await UniworkerTodo(cancelToken);
@@ -78,14 +79,14 @@ namespace iReverse_UniSPD_FRP.UniSPD
             string method = WorkerMethod;
 
             Checksum.set_chksum_type("add");
-            await uni.send_enable_flash(cancelToken);
+            await Uni.send_enable_flash(cancelToken);
 
             Console.WriteLine("Doing " + method);
             if (method == "RECOVERY WIPE DATA I + FRP")
             {
                 string files = Application.StartupPath + "\\Data\\Misc\\1";
-                await Recovery_Command(files, cancelToken);
-                await Erase_FRP(cancelToken);
+                await Recovery_Command(files, cancelToken);//misc siler misc yükler
+                await Erase_FRP(cancelToken); //erase persist siler
             }
             else if (method == "RECOVERY WIPE DATA II + FRP")
             {
@@ -113,22 +114,23 @@ namespace iReverse_UniSPD_FRP.UniSPD
             }
             else if (method == "ERASE DATA + FRP")
             {
-                await Erase_Data(cancelToken);
+                await Erase_Data(cancelToken);//eğer userdata varsa userdata yaza yoksa format and flash userdata
                 await Erase_FRP(cancelToken);
             }
             else if (method == "ERASE FRP ONLY")
             {
                 await Erase_FRP(cancelToken);
             }
-            await uni.send_reset(cancelToken);
+            await Uni.send_reset(cancelToken);
         }
 
         public static async Task Erase_Data(CancellationToken cancelToken)
         {
+            //iş parcacığı bozuluyor
             string size = "1M";
             await ErasePartition("misc", size, cancelToken);
 
-            size = await uni.send_get_partition_size("userdata", cancelToken);
+            size = await Uni.send_get_partition_size("userdata", cancelToken);
             if (size == "0")
             {
                 string files = Application.StartupPath + "\\Data\\Misc\\1";
@@ -167,48 +169,51 @@ namespace iReverse_UniSPD_FRP.UniSPD
             ulong PartitionData_writen = 0;
             if (partition == "misc")
             {
-                MyDisplay.RichLogs("Recovery command     : ", Color.Black, true, false);
+                MyDisplay.RichLogs("Writing Partition    : ", Color.Black, true, false);
+                MyDisplay.RichLogs("misc ", Color.Black, true, false);
             }
             else
             {
-                MyDisplay.RichLogs("Writing data         : ", Color.Black, true, false);
+                MyDisplay.RichLogs("Writing Partition    : ", Color.Black, true, false);
+                MyDisplay.RichLogs(partition+" ", Color.Black, true, false);
             }
             if (File.Exists(location))
             {
                 MyProgress.ProcessBar1(0);
 
                 PartitionData = File.ReadAllBytes(location);
-                if ((ulong)PartitionData.Length < uni.StrToSize("1M"))
+                if ((ulong)PartitionData.Length < Uni.StrToSize("1M"))
                 {
                     PartitionData_len = (ulong)PartitionData.Length;
                 }
                 else
                 {
+                    //burayı kontrol
                     int Count = 1;
                     do
                     {
-                        if (uni.StrToSize(Count.ToString() + "M") > (ulong)PartitionData.Length)
+                        if (Uni.StrToSize(Count.ToString() + "M") > (ulong)PartitionData.Length)
                         {
                             size = Count - 1 + "M";
                             break;
                         }
                         Count += 1;
                     } while (true);
-                    PartitionData = uni.TakeByte(
+                    PartitionData = Uni.TakeByte(
                         File.ReadAllBytes(location),
                         0,
-                        uni.StrToSize(size)
+                        Uni.StrToSize(size)
                     );
                     PartitionData_len = (ulong)PartitionData.Length;
                 }
 
                 if (PartitionData_len > 0)
                 {
-                    await uni.send_select_partition(
+                    await Uni.send_select_partition(
                         partition,
                         PartitionData_len,
-                        false,
-                        (int)Uni_CMD.BSL.CMD_START_DATA,
+                        false,//reeder
+                        (int)UniCMD.BSL.CMD_START_DATA,
                         cancelToken
                     );
                 }
@@ -228,8 +233,8 @@ namespace iReverse_UniSPD_FRP.UniSPD
             {
                 if (PartitionData_len > 1016)
                 {
-                    await uni.send_midst(
-                        uni.TakeByte(PartitionData, PartitionData_writen, 1016),
+                    await Uni.send_midst(
+                        Uni.TakeByte(PartitionData, PartitionData_writen, 1016),
                         cancelToken
                     );
 
@@ -238,8 +243,8 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 }
                 else
                 {
-                    await uni.send_midst(
-                        uni.TakeByte(PartitionData, PartitionData_writen, PartitionData_len),
+                    await Uni.send_midst(
+                        Uni.TakeByte(PartitionData, PartitionData_writen, PartitionData_len),
                         cancelToken
                     );
 
@@ -250,7 +255,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 MyProgress.ProcessBar1((long)PartitionData_writen, PartitionData.Length);
             }
 
-            await uni.send_end(cancelToken);
+            await Uni.send_end(cancelToken);
 
             MyDisplay.RichLogs("OK", Color.Lime, true, true);
         }
@@ -264,11 +269,11 @@ namespace iReverse_UniSPD_FRP.UniSPD
             Console.WriteLine("Partition Name : " + partition + " Partition size : " + size);
             MyDisplay.RichLogs("Reading Partition " + partition + " : ", Color.Black, true, false);
 
-            await uni.send_select_partition(
+            await Uni.send_select_partition(
                 partition,
                 size,
                 false,
-                (int)Uni_CMD.BSL.CMD_READ_START,
+                (int)UniCMD.BSL.CMD_READ_START,
                 cancelToken
             );
 
@@ -282,28 +287,28 @@ namespace iReverse_UniSPD_FRP.UniSPD
                 byte[] buffer = new byte[1024];
 
                 ulong i = 0;
-                ulong BYTES_TO_READ = uni.StrToSize(size); // Partition Size
+                ulong BYTES_TO_READ = Uni.StrToSize(size); // Partition Size
                 ulong bytesRead = 0;
                 ulong fileOffset = 0;
                 do
                 {
                     fileOffset = bytesRead * i;
-                    await uni.send_read_midst((int)bytesRead, (int)fileOffset, cancelToken);
-                    buffer = uni.buffer;
+                    await Uni.send_read_midst((int)bytesRead, (int)fileOffset, cancelToken);
+                    buffer = Uni.buffer;
                     if (fileOffset == BYTES_TO_READ - bytesRead)
                     {
                         if (buffer != null)
                         {
                             await stream.WriteAsync(buffer, 0, buffer.Length);
 
-                            if (uni.logs_buffer)
+                            if (Uni.logs_buffer)
                                 Console.WriteLine("Buffer Data : " + buffer.Length);
                         }
 
                         MyProgress.ProcessBar1(100);
                         stream.Flush();
                         stream.Close();
-                        await uni.send_read_end(cancelToken);
+                        await Uni.send_read_end(cancelToken);
                         break;
                     }
 
@@ -321,7 +326,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
 
             MyDisplay.RichLogs("OK", Color.Lime, true, true);
         }
-
+        
         public static async Task ErasePartition(
             string partition,
             string size = "1M",
@@ -329,32 +334,20 @@ namespace iReverse_UniSPD_FRP.UniSPD
         )
         {
             Console.WriteLine("Partition Name : " + partition + " Partition size : " + size);
+            MyDisplay.RichLogs("Erasing Partition    : "+ partition+" ", Color.Black, true, false);
 
-            if (partition != "misc")
+            if (await Uni.send_select_partition(
+                partition,
+                size,
+                false,
+                (int)UniCMD.BSL.CMD_ERASE_FLASH,
+                cancelToken))
             {
-                MyDisplay.RichLogs("Erasing data         : ", Color.Black, true, false);
-            }
-            if (
-                await uni.send_select_partition(
-                    partition,
-                    size,
-                    false,
-                    (int)Uni_CMD.BSL.CMD_ERASE_FLASH,
-                    cancelToken
-                )
-            )
-            {
-                if (partition != "misc")
-                {
-                    MyDisplay.RichLogs("OK", Color.Lime, true, true);
-                }
+                MyDisplay.RichLogs("OK", Color.Lime, true, true);
             }
             else
             {
-                if (partition != "misc")
-                {
-                    MyDisplay.RichLogs("Failed", Color.Crimson, true, true);
-                }
+                MyDisplay.RichLogs("Failed", Color.Crimson, true, true);
             }
         }
     }

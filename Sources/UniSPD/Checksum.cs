@@ -17,7 +17,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
 
         public static void TransCodeTest()
         {
-            byte[] src = uni.StringToByteArray("00 01 00 08 9F 00 00 00 00 07 34 00");
+            byte[] src = Uni.StringToByteArray("00 01 00 08 9F 00 00 00 00 07 34 00");
             int len = src.Length;
             byte[] dst = new byte[len];
 
@@ -57,7 +57,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
             }
             else if (chksum_type == CHKSUM_TYPE_ADD)
             {
-                uint c = Checksum.SpdChecksum(0, uni.parse_reverse(data), data.Length, CHK_ORIG);
+                uint c = Checksum.SpdChecksum(0, Uni.parse_reverse(data), data.Length, CHK_ORIG);
                 //Console.WriteLine("SPD Checksum      : " & c.ToString("X4"))
                 return (int)c;
             }
@@ -140,7 +140,7 @@ namespace iReverse_UniSPD_FRP.UniSPD
 
         public static uint SpdChecksum(uint crc, byte[] src, int len, int final)
         {
-            byte[] s = uni.parse_reverse(src);
+            byte[] s = Uni.parse_reverse(src);
 
             while (len > 1)
             {

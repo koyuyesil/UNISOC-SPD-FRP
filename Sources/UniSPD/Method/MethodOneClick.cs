@@ -12,9 +12,10 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
     {
         public static void SPDOneClickExecModel()
         {
+            //TODO DEĞİŞ
             try
             {
-                if (!String.IsNullOrEmpty(MyListSPDDevice.Brand))
+                if (!String.IsNullOrEmpty(UniSPDDevice.Brand))
                 {
                     int num = 0;
                     Main.SharedUI.PanelSPDOneClick.Controls.Clear();
@@ -22,9 +23,9 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
                     string str = File.ReadAllText(
                         Application.StartupPath
                             + "\\Data\\Models\\"
-                            + MyListSPDDevice.Brand.ToUpper()
+                            + UniSPDDevice.Brand
                             + "\\"
-                            + MyListSPDDevice.ModelName.ToUpper()
+                            + UniSPDDevice.ModelName
                             + ".txt"
                     );
 
@@ -101,41 +102,44 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
                 Button button = (Button)sender;
                 string str = button.Text;
                 MyDisplay.RtbClear();
-                MyDisplay.RichLogs("Operation	     : ", Color.Black, true, false);
+                MyDisplay.RichLogs("Operation           : ", Color.Black, true, false);
                 MyDisplay.RichLogs(str, Color.Orange, true, true);
-                MyDisplay.RichLogs(" Brand		     : ", Color.Black, true, false);
-                MyDisplay.RichLogs(MyListSPDDevice.Brand, Color.Purple, true, true);
-                string MyDevices = MyListSPDDevice.DevicesName.Replace(MyListSPDDevice.Brand, "");
+                MyDisplay.RichLogs(" Brand              : ", Color.Black, true, false);
+                MyDisplay.RichLogs(UniSPDDevice.Brand, Color.Purple, true, true);
+                string MyDevices = UniSPDDevice.DevicesName.Replace(UniSPDDevice.Brand, "");
                 if (!String.IsNullOrEmpty(MyDevices))
                 {
-                    MyDisplay.RichLogs(" Devices	     :", Color.Black, true, false);
+                    MyDisplay.RichLogs(" Devices            :", Color.Black, true, false);
                     MyDisplay.RichLogs(MyDevices, Color.Purple, true, true);
                 }
-                MyDisplay.RichLogs(" Model		     : ", Color.Black, true, false);
-                MyDisplay.RichLogs(MyListSPDDevice.ModelName, Color.Purple, true, true);
-                MyDisplay.RichLogs(" Platform	     : ", Color.Black, true, false);
+                MyDisplay.RichLogs(" Model              : ", Color.Black, true, false);
+                MyDisplay.RichLogs(UniSPDDevice.ModelName, Color.Purple, true, true);
+                MyDisplay.RichLogs(" Platform           : ", Color.Black, true, false);
                 MyDisplay.RichLogs("Spreadtrum", Color.Purple, true, true);
-                MyDisplay.RichLogs(" Connect	     : ", Color.Black, true, false);
+                MyDisplay.RichLogs(" Connect            : ", Color.Black, true, false);
                 MyDisplay.RichLogs("Download", Color.Purple, true, true);
-                MyDisplay.RichLogs("Loader Data	     : ", Color.Black, true, false);
+                
 
                 MethodDownload.fdl1 = GetSPDFile("fdl1-sign.bin", false);
                 MethodDownload.fdl1_len = MethodDownload.fdl1.Length;
-                Console.WriteLine("FDL1 Length : " + MethodDownload.fdl1_len);
+                MyDisplay.RichLogs("FDL1 Length         : ", Color.Black, true, false);
+                MyDisplay.RichLogs(""+MethodDownload.fdl1_len, Color.Purple, true, true);
                 Thread.Sleep(200);
+
                 MethodDownload.fdl2 = GetSPDFile("fdl2-sign.bin", false);
                 MethodDownload.fdl2_len = MethodDownload.fdl2.Length;
-                Console.WriteLine("FDL2 Length : " + MethodDownload.fdl2_len);
+                MyDisplay.RichLogs("FDL2 Length         : ", Color.Black, true, false);
+                MyDisplay.RichLogs(""+MethodDownload.fdl2_len, Color.Purple, true, true);
                 Thread.Sleep(200);
 
+                MyDisplay.RichLogs("Loader Data	    : ", Color.Black, true, false);
                 MyDisplay.RichLogs("Done  ✓ ", Color.Purple, true, true);
-                MyDisplay.RichLogs("Support Data	     : ", Color.Black, true, false);
+                MyDisplay.RichLogs("Support Data	    : ", Color.Black, true, false);
                 MyDisplay.RichLogs("Done  ✓ ", Color.Purple, true, true);
-                MyDisplay.RichLogs(" ", Color.Purple, true, true);
                 Thread.Sleep(200);
 
-                uni_worker.WorkerMethod = str;
-                await Task.Run(() => uni_worker.UniworkerStart(token));
+                UniWorker.WorkerMethod = str;
+                await Task.Run(() => UniWorker.UniworkerStart(token));
             }
             catch (OperationCanceledException)
             {
@@ -156,9 +160,9 @@ namespace iReverse_UniSPD_FRP.UniSPD.Method
                 result = File.ReadAllBytes(
                     Application.StartupPath
                         + "\\Data\\Models\\"
-                        + MyListSPDDevice.Brand.ToUpper()
+                        + UniSPDDevice.Brand.ToUpper()
                         + "\\"
-                        + MyListSPDDevice.ModelName.ToUpper()
+                        + UniSPDDevice.ModelName.ToUpper()
                         + "\\"
                         + namafile
                 );

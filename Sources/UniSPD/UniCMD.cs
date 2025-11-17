@@ -1,6 +1,6 @@
 ﻿namespace iReverse_UniSPD_FRP.UniSPD
 {
-    internal static class Uni_CMD
+    internal static class UniCMD
     {
         public static int HDLC_HEADER = 0x7E;
         public static int HDLC_ESCAPE = 0x7D;
