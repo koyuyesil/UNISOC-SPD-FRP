@@ -84,37 +84,37 @@ namespace iReverse_UniSPD_FRP.UniSPD
             Console.WriteLine("Doing " + method);
             if (method == "RECOVERY WIPE DATA I + FRP")
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\1";
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_wipe_data_locale_en_US_reason_android.bin";
                 await Recovery_Command(files, cancelToken);//misc siler misc yükler
                 await Erase_FRP(cancelToken); //erase persist siler
             }
             else if (method == "RECOVERY WIPE DATA II + FRP")
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\2";
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_wipe_data_locale_en_US_reason_MasterClearConfirm.bin";
                 await Recovery_Command(files, cancelToken);
                 await Erase_FRP(cancelToken);
             }
             else if (method == "RECOVERY FORMAT DATA + FRP")
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\3";
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_format_data_locale_en_US_reason_MasterClearConfirm.bin";
                 await Recovery_Command(files, cancelToken);
                 await Erase_FRP(cancelToken);
             }
             else if (method == "RECOVERY WIPE APP DATA + FRP")
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\4";
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_wipe_appdata_locale_en_US_reason_MasterClearConfirm.bin";
                 await Recovery_Command(files, cancelToken);
                 await Erase_FRP(cancelToken);
             }
             else if (method == "RECOVERY WIPE DATA ONLY + FRP")
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\5";
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_wipe_data_only_locale_en_US_reason_MasterClearConfirm.bin";
                 await Recovery_Command(files, cancelToken);
                 await Erase_FRP(cancelToken);
             }
             else if (method == "ERASE DATA + FRP")
             {
-                await Erase_Data(cancelToken);//eğer userdata varsa userdata yaza yoksa format and flash userdata
+                await Erase_Data(cancelToken);//eğer userdata varsa patched userdata yazar. yoksa misc siler ve misc1 yükler
                 await Erase_FRP(cancelToken);
             }
             else if (method == "ERASE FRP ONLY")
@@ -129,16 +129,24 @@ namespace iReverse_UniSPD_FRP.UniSPD
             //iş parcacığı bozuluyor
             string size = "1M";
             await ErasePartition("misc", size, cancelToken);
-
-            size = await Uni.send_get_partition_size("userdata", cancelToken);
-            if (size == "0")
+            try
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\1";
+                size = await Uni.send_get_partition_size("userdata", cancelToken);
+            }
+            catch (Exception ex)
+            {
+
+                MyDisplay.RichLogs("Error! Can't get userdata partition size.", Color.Crimson, true, true);
+            }
+            
+            if (size == "0")//userdata yoksa misc siler ve misc yükler
+            {
+                string files = Application.StartupPath + "\\Data\\Misc\\misc_wipe_data_locale_en_US_reason_android.bin";
                 await Recovery_Command(files, cancelToken);
             }
-            else
+            else//userdata varsa userdata siler ve patched userdata yükler
             {
-                string files = Application.StartupPath + "\\Data\\Misc\\6";
+                string files = Application.StartupPath + "\\Data\\Misc\\userdata_patch.bin";
                 await ErasePartition("userdata", size, cancelToken);
                 await FlashPartition("userdata", files, cancelToken);
             }
